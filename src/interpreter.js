@@ -19,8 +19,12 @@ var Interpreter = function () {
         return result;
     }
 
-    this.checkQuery = function (params) {
-        return true;
+    this.checkQuery = function (query) {
+        if(isValidQuery(query)) {
+            processQuery(query);
+        } else {
+            return false;
+        }
     }
 
 }
@@ -39,6 +43,14 @@ isValidRule = function(inputElement) {
         return false;
     }
     return true;
+};
+
+isValidQuery = function(inputQuery) {
+  var matches = inputQuery.match(/^[^\(]*\([^)]*\)$/g);
+  if(matches == null) {
+      return false;
+  }
+  return true;
 };
 
 putTogether = function(value) {
@@ -71,6 +83,65 @@ generateRuleList = function (ruleSide, factSide) {
     return ruleList;
 }
 
+processQuery = function(query) {
+    if(factMap.has(putTogether(query))) {
+        return true;
+    } else {
+        return evaluateQueryRule(query);
+    }
+
+}
+
+evaluateQueryRule = function(query) {
+    var parsedQuery = query.replace(/ +/g, '');
+    var ruleName = parsedQuery.split(/\(/)[0];
+    if(ruleMap.has(ruleName)) {
+        var queryRuleValues = obtainValuesFromBrackets(query);
+        return evaluateRuleConditions(ruleMap.get(ruleName), queryRuleValues);
+    } else {
+        return false;
+    }
+}
+
+evaluateRuleConditions = function(conditions, queryValues) {
+    if(conditions[0] == queryValues.length) {
+        return checkRuleFacts(conditions, queryValues);
+    } else {
+        return false;
+    }
+}
+
+checkRuleFacts = function(conditions, queryValues) {
+    var varsAmount = conditions[0];
+    var replacedFacts = [];
+    for(var itVars = 1; itVars <= varsAmount; itVars++) {
+        var varActual = conditions[itVars];
+        for(var itFacts = 1 + varsAmount; itFacts < conditions.length; itFacts++) {
+            var replacedRuleFact = conditions[itFacts];
+            var replacedRuleFact = replacedRuleFact.replace(new RegExp(varActual, 'g'), queryValues[itVars-1]);
+        }
+        replacedFacts.push(replacedRuleFact);
+    }
+    var queryResult = true;
+    replacedFacts.forEach(function(fact) {
+        if(!factMap.has(fact)) {
+            queryResult = false;
+        }
+    });
+    return queryResult;
+}
+
+replaceWithValue = function() {
+
+}
+
+obtainValuesFromBrackets = function(query) {
+    var varsSide = query.split(/\(/)[1];
+    var parsedSide = varsSide.replace(/\)/g, '');
+    var ruleVars = parsedSide.split(/,/g);
+    return ruleVars;
+}
+
 module.exports = Interpreter;
 
 var db = [
@@ -93,4 +164,7 @@ var db = [
 var factMap = new Map();
 var ruleMap = new Map();
 var inter = new Interpreter();
- inter.parseDB(db);
+inter.parseDB(db);
+console.log(ruleMap);
+var result = inter.checkQuery("hijo(pepe, juan)");
+console.log(result);
