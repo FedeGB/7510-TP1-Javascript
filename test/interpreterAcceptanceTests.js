@@ -28,6 +28,7 @@ describe("Interpreter", function () {
 
     before(function () {
         // runs before all tests in this block
+
     });
 
     after(function () {
@@ -37,6 +38,8 @@ describe("Interpreter", function () {
     beforeEach(function () {
         // runs before each test in this block
         interpreter = new Interpreter();
+        var factMap = new Map();
+        var ruleMap = new Map();
         interpreter.parseDB(db);
     });
 

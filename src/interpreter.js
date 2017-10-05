@@ -1,6 +1,11 @@
+var factMap = new Map();
+var ruleMap = new Map();
+
 var Interpreter = function () {
 
     this.parseDB = function (inputDB) {
+        var factMap = new Map();
+        var ruleMap = new Map();
         var result = {'error': false};
         var line = 1;
         inputDB.forEach(function(element) {
@@ -21,7 +26,7 @@ var Interpreter = function () {
 
     this.checkQuery = function (query) {
         if(isValidQuery(query)) {
-            processQuery(query);
+            return processQuery(query);
         } else {
             return false;
         }
@@ -114,11 +119,12 @@ evaluateRuleConditions = function(conditions, queryValues) {
 checkRuleFacts = function(conditions, queryValues) {
     var varsAmount = conditions[0];
     var replacedFacts = [];
-    for(var itVars = 1; itVars <= varsAmount; itVars++) {
-        var varActual = conditions[itVars];
-        for(var itFacts = 1 + varsAmount; itFacts < conditions.length; itFacts++) {
-            var replacedRuleFact = conditions[itFacts];
-            var replacedRuleFact = replacedRuleFact.replace(new RegExp(varActual, 'g'), queryValues[itVars-1]);
+    for(var itFacts = 1 + varsAmount; itFacts < conditions.length; itFacts++) {
+        var replacedRuleFact = conditions[itFacts];
+        for(var itVars = 1; itVars <= varsAmount; itVars++) {
+            var varActual = conditions[itVars];
+            var valueActual = queryValues[itVars-1];
+            replacedRuleFact = replacedRuleFact.replace(new RegExp(varActual, 'g'), valueActual);
         }
         replacedFacts.push(replacedRuleFact);
     }
@@ -131,11 +137,8 @@ checkRuleFacts = function(conditions, queryValues) {
     return queryResult;
 }
 
-replaceWithValue = function() {
-
-}
-
 obtainValuesFromBrackets = function(query) {
+    query = query.replace(/ +/g, '');
     var varsSide = query.split(/\(/)[1];
     var parsedSide = varsSide.replace(/\)/g, '');
     var ruleVars = parsedSide.split(/,/g);
@@ -143,28 +146,3 @@ obtainValuesFromBrackets = function(query) {
 }
 
 module.exports = Interpreter;
-
-var db = [
-    "varon(juan).",
-    "varon(pepe).",
-    "varon(hector).",
-    "varon(roberto).",
-    "varon(alejandro).",
-    "mujer(maria).",
-    "mujer(cecilia).",
-    "padre(juan, pepe).",
-    "padre(juan, pepa).",
-    "padre(hector, maria).",
-    "padre(roberto, alejandro).",
-    "padre(roberto, cecilia).",
-    "hijo(X, Y) :- varon(X), padre(Y, X).",
-    "hija(X, Y) :- mujer(X), padre(Y, X)."
-];
-
-var factMap = new Map();
-var ruleMap = new Map();
-var inter = new Interpreter();
-inter.parseDB(db);
-console.log(ruleMap);
-var result = inter.checkQuery("hijo(pepe, juan)");
-console.log(result);
