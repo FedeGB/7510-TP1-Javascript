@@ -90,6 +90,39 @@ describe("Interpreter", function () {
 
     });
 
+    describe('Validation and Utility', function() {
+       it('padre(mario,pepe) should be valid fact', function() {
+          assert(isValidFact('padre(mario,pepe)') === true);
+       });
+       it('padre[mario,pepe] should not be a valid fact', function(){
+           assert(isValidFact('padre[mario,pepe]') === false);
+       });
+       it('hija(X, Y) :- mujer(X), padre(Y, X) should be valid rule', function() {
+           assert(isValidRule('hija(X, Y) :- mujer(X), padre(Y, X)') === true);
+       });
+       it('hija(X, Y) : mujer(X), padre(Y, X) should not be a valid rule', function(){
+           assert(isValidRule('hija(X, Y) : mujer(X), padre(Y, X)') === false);
+       });
+       it('padre(mario,pepe) should be valid query', function() {
+           assert(isValidQuery('padre(mario,pepe)') === true);
+       });
+       it('padre[mario,pepe] should not be a valid query', function(){
+           assert(isValidQuery('padre mario,pepe]') === false);
+       });
+       it('varon(mario) should be put together as varonmario', function() {
+          assert(putTogether('varon(mario)') === 'varonmario');
+       });
+       it('padre(mario,pepe) should be put together as padremariopepe', function() {
+          assert(putTogether('padre(mario,pepe)') === 'padremariopepe');
+       });
+       it('hijo(X, Y) should get [\'X\', \'Y\']', function() {
+          var variables = obtainValuesFromBrackets('hijo(X, Y)');
+          assert(variables.length == 2);
+          assert(variables[0] == 'X');
+          assert(variables[1] == 'Y');
+       });
+    });
+
 
 });
 
