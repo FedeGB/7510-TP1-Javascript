@@ -4,8 +4,6 @@ var ruleMap = new Map();
 var Interpreter = function () {
 
     this.parseDB = function (inputDB) {
-        var factMap = new Map();
-        var ruleMap = new Map();
         var result = {'error': false};
         var line = 1;
         inputDB.forEach(function(element) {
@@ -143,6 +141,14 @@ obtainValuesFromBrackets = function(query) {
     var parsedSide = varsSide.replace(/\)/g, '');
     var ruleVars = parsedSide.split(/,/g);
     return ruleVars;
+}
+
+getFactMap = function() {
+    return factMap;
+}
+
+getRuleMap = function() {
+    return ruleMap;
 }
 
 module.exports = Interpreter;

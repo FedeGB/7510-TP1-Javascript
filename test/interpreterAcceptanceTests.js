@@ -38,8 +38,6 @@ describe("Interpreter", function () {
     beforeEach(function () {
         // runs before each test in this block
         interpreter = new Interpreter();
-        var factMap = new Map();
-        var ruleMap = new Map();
         interpreter.parseDB(db);
     });
 
@@ -122,7 +120,6 @@ describe("Interpreter", function () {
           assert(variables[1] == 'Y');
        });
     });
-
 
 });
 
